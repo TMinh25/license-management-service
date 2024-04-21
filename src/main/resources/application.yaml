@@ -1,0 +1,42 @@
+#server:
+#  port: ${SERVER_PORT:8083}
+#turbo:
+#  data:
+#    platform: mongodb
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DB_NAME:workpro}
+  application:
+    name: template
+  webflux:
+    base-path: ${CONTEXT_PATH:/api/template-service}
+  .main:
+    allow-bean-definition-overriding: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:http://localhost:29091}
+config:
+  limit-finished-task: ${CONFIG_LIMIT_FINISHED_TASK:5}
+grpc:
+  server:
+    port: 9083
+  client:
+    authorization-server:
+      address: ${AUTHOR_GRPC_SERVER:static://localhost:9082}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
+    tenant-server:
+      address: ${TENANT_GRPC_SERVER:static://localhost:9081}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
+
+logging:
+  level:
+    org:
+      springframework:
+        data: ${LOGGING_LEVEL:INFO}
+    com:
+      fpt:
+        fis: ${LOGGING_LEVEL:INFO}
