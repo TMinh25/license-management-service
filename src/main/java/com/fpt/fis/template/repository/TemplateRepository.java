@@ -7,7 +7,5 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface TemplateRepository extends ReactiveMongoRepository<Template, String>, TemplateDataRepository {
-    Mono<Template> findByTemplateId(Long templateId);
-
-    Mono<Void> deleteByTemplateId(Long templateId);
+    Mono<Void> deleteTemplateById(String id);
 }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 public class TemplateDTO {
 
-    private Long templateId;
+    private String templateId;
 
     private String name;
 

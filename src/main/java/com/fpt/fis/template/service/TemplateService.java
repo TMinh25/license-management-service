@@ -3,21 +3,23 @@ package com.fpt.fis.template.service;
 import com.fpt.fis.template.model.request.TemplateRequest;
 import com.fpt.fis.template.model.response.TemplateListFilterResponse;
 import com.fpt.fis.template.model.response.TemplateResponse;
+import com.fpt.fis.template.repository.entity.Template;
 import org.springframework.data.domain.Pageable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface TemplateService {
-    Mono<TemplateResponse> readById(Long templateId);
+    Mono<TemplateResponse> readTemplateById(String id);
 
-    Mono<TemplateResponse> create(TemplateRequest request);
+    Mono<TemplateResponse> createTemplate(TemplateRequest request);
 
-    Mono<TemplateResponse> update(Long templateId, TemplateRequest request);
+    Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request);
 
-    Mono<TemplateListFilterResponse> read(Pageable pageable, String fql);
+    Mono<TemplateListFilterResponse> readAllTemplates(String searchText, Pageable pageable);
 
-    Mono<Void> delete(Long templateId);
+    Mono<Void> deleteTemplate(String id);
 
-    Mono<List<String>> getParamertersById(Long templateId);
+    Mono<List<String>> getParamertersById(String id);
 }

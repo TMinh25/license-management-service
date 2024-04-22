@@ -11,10 +11,6 @@ spring:
     name: template
   webflux:
     base-path: ${CONTEXT_PATH:/api/template-service}
-  .main:
-    allow-bean-definition-overriding: true
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:http://localhost:29091}
 config:
   limit-finished-task: ${CONFIG_LIMIT_FINISHED_TASK:5}
 grpc:

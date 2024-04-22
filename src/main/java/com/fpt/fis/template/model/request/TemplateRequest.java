@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TemplateRequest {
 
-    private Long templateId;
+    private String templateId;
 
     private String name;
 

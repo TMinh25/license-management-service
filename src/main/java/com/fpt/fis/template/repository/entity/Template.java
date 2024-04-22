@@ -9,6 +9,7 @@ import lombok.*;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Template {
     private String id;
 
     @Indexed(unique = true)
-    private Long templateId;
+    private String templateId;
 
     @NotEmpty(message = "Template's name must not be empty")
     @Size(min=1, max=200)
