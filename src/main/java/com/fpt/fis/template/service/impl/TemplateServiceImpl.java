@@ -9,7 +9,6 @@ import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.framework.data.exception.DataIsNotFoundException;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@Log4j2
 public class TemplateServiceImpl implements TemplateService {
 
     @Autowired
