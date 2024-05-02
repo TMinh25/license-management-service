@@ -1,21 +1,14 @@
-#server:
-#  port: ${SERVER_PORT:8083}
-#turbo:
-#  data:
-#    platform: mongodb
-spring:
+server:
+  port: ${SERVER_PORT:8090}
+turbo:
   data:
-    mongodb:
-      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DB_NAME:workpro}
+    platform: mongodb
+spring:
   application:
     name: template
-  webflux:
-    base-path: ${CONTEXT_PATH:/api/template-service}
 config:
   limit-finished-task: ${CONFIG_LIMIT_FINISHED_TASK:5}
 grpc:
-  server:
-    port: 9083
   client:
     authorization-server:
       address: ${AUTHOR_GRPC_SERVER:static://localhost:9082}
@@ -27,7 +20,6 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
-
 logging:
   level:
     org:

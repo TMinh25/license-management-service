@@ -15,9 +15,9 @@ public interface TemplateService {
 
     Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request);
 
-    Mono<TemplateListFilterResponse> readAllTemplates(String searchText, Pageable pageable);
+    Mono<TemplateListFilterResponse> readAllTemplates(String name, String description, Pageable pageable);
 
-    Mono<Void> deleteTemplate(String id);
+    Mono<Void> deleteTemplateById(String id);
 
-    Mono<List<String>> getParamertersById(String id);
+    Mono<List<String>> readAllParameters(String id);
 }

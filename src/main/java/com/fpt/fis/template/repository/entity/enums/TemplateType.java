@@ -1,4 +1,4 @@
-package com.fpt.fis.template.model.enums;
+package com.fpt.fis.template.repository.entity.enums;
 
 public enum TemplateType {
     MAIL("mail"), PRINT("print");

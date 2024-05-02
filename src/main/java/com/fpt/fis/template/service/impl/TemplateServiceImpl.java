@@ -1,9 +1,8 @@
 package com.fpt.fis.template.service.impl;
 
-import com.fpt.fis.template.model.enums.TemplateEngine;
-import com.fpt.fis.template.model.enums.TemplateType;
 import com.fpt.fis.template.model.request.TemplateRequest;
 import com.fpt.fis.template.model.response.TemplateListFilterResponse;
+import com.fpt.fis.template.model.response.TemplateListResponse;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
@@ -33,8 +32,8 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Mono<TemplateListFilterResponse> readAllTemplates(String searchText, Pageable pageable) {
-        return templateRepository.findTemplatesWithFilter(searchText, pageable);
+    public Mono<TemplateListFilterResponse> readAllTemplates(String name, String description, Pageable pageable) {
+        return templateRepository.findAllByNameContainingOrDescriptionContaining(name, description, pageable).map(this::mapTemplateToTemplateListResponse).collectList().zipWith(templateRepository.count()).map(p-> new TemplateListFilterResponse(p.getT1(), p.getT2()));
     }
 
     @Override
@@ -51,13 +50,13 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Mono<Void> deleteTemplate(String id) {
+    public Mono<Void> deleteTemplateById(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
                 new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMap(t -> templateRepository.deleteTemplateById(t.getId()));
     }
 
     @Override
-    public Mono<List<String>> getParamertersById(String id) {
+    public Mono<List<String>> readAllParameters(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
                 new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map((Template::getParamerters));
     }
@@ -68,25 +67,28 @@ public class TemplateServiceImpl implements TemplateService {
         templateDTO.setName(template.getName());
         templateDTO.setDescription(template.getDescription());
         templateDTO.setContent(template.getContent());
-        templateDTO.setType(template.getType());
-        templateDTO.setEngine(template.getEngine());
         templateDTO.setCreatedTime(template.getCreatedTime());
         templateDTO.setUpdatedTime(template.getUpdatedTime());
-        templateDTO.setCreatedBy(template.getCreatedBy());
-        templateDTO.setUpdatedBy(template.getUpdatedBy());
-        templateDTO.setParamerters(template.getParamerters());
         return templateDTO;
     }
 
+    private TemplateListResponse mapTemplateToTemplateListResponse(Template template) {
+        TemplateListResponse templateDTO = new TemplateListResponse();
+        templateDTO.setTemplateId(template.getId());
+        templateDTO.setName(template.getName());
+        templateDTO.setDescription(template.getDescription());
+        templateDTO.setContent(template.getContent());
+        templateDTO.setCreatedTime(template.getCreatedTime());
+        templateDTO.setUpdatedTime(template.getUpdatedTime());
+        return templateDTO;
+    }
+
+
     private Template mapTemplateRequestToTemplate(TemplateRequest request,Template oldTemplate) {
         Template template = Objects.requireNonNullElseGet(oldTemplate, Template::new);
-        template.setTemplateId(template.getId());
         template.setName(request.getName());
         template.setDescription(request.getDescription());
         template.setContent(request.getContent());
-        template.setType(TemplateType.PRINT);
-        template.setEngine(TemplateEngine.VELOCITY);
-        template.setParamerters(findParamerters(request.getContent()));
         return template;
     }
 

@@ -23,7 +23,7 @@ public class TemplateRestController {
     private TemplateService templateService;
 
     @GetMapping("{id}")
-    @PreAuthorize("@author.hasPermission('template', 'view')")
+    @PreAuthorize("@author.hasPermission('template', 'view-detail')")
     public Mono<TemplateResponse> readTemplateById(@Parameter @PathVariable("id") String id) {
         return templateService.readTemplateById(id);
     }
@@ -43,20 +43,20 @@ public class TemplateRestController {
     @GetMapping("")
     @PreAuthorize("@author.hasPermission('template', 'view')")
     public Mono<TemplateListFilterResponse> readAllTemplates(
-            @RequestParam(name = "query", required = false) String searchText,
+            @RequestParam(required = false) String query,
             @ParameterObject Pageable pageable) {
-        return templateService.readAllTemplates(searchText, pageable);
+        return templateService.readAllTemplates(query, query, pageable);
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("@author.hasPermission('template', 'update')")
+    @PreAuthorize("@author.hasPermission('template', 'delete')")
     public Mono<Void> deleteTemplate(@Parameter @PathVariable("id") String id) {
-        return templateService.deleteTemplate(id);
+        return templateService.deleteTemplateById(id);
     }
 
     @GetMapping("{id}/parameters")
     @PreAuthorize("@author.hasPermission('template', 'view')")
-    public Mono<List<String>> getParamertersById(@Parameter @PathVariable("id") String id) {
-        return templateService.getParamertersById(id);
+    public Mono<List<String>> readAllParameters(@Parameter @PathVariable("id") String id) {
+        return templateService.readAllParameters(id);
     }
 }
