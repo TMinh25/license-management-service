@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class TemplateListFilterResponse {
-    private List<TemplateListResponse> content;
+public class TemplateResponsePage {
+    private List<TemplateResponse> content;
     private Long total;
 }

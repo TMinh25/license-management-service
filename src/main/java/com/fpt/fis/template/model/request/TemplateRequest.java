@@ -7,16 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TemplateRequest {
-
-    private String templateId;
 
     private String name;
 
@@ -27,15 +22,5 @@ public class TemplateRequest {
     private TemplateType type;
 
     private TemplateEngine engine;
-
-    private LocalDateTime createdTime;
-
-    private LocalDateTime updatedTime;
-
-    private String createdBy;
-
-    private String updatedBy;
-
-    private List<String> paramerters;
 
 }

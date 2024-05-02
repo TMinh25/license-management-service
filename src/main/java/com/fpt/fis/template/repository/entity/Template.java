@@ -3,10 +3,15 @@ package com.fpt.fis.template.repository.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
 import com.fpt.fis.template.repository.entity.enums.TemplateType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-import org.springframework.data.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;

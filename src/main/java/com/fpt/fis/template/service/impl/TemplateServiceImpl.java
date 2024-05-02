@@ -1,16 +1,18 @@
 package com.fpt.fis.template.service.impl;
 
 import com.fpt.fis.template.model.request.TemplateRequest;
-import com.fpt.fis.template.model.response.TemplateListFilterResponse;
-import com.fpt.fis.template.model.response.TemplateListResponse;
+import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
+import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
+import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.framework.data.exception.DataIsNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -28,12 +30,12 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Mono<TemplateResponse> readTemplateById(String id) {
         return templateRepository.findById(id).map(this::mapTemplateToTemplateResponse).switchIfEmpty(Mono
-                .error(new DataIsNotFoundException("The request does not exist or you do not have permission to view")));
+                .error(new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id))));
     }
 
     @Override
-    public Mono<TemplateListFilterResponse> readAllTemplates(String name, String description, Pageable pageable) {
-        return templateRepository.findAllByNameContainingOrDescriptionContaining(name, description, pageable).map(this::mapTemplateToTemplateListResponse).collectList().zipWith(templateRepository.count()).map(p-> new TemplateListFilterResponse(p.getT1(), p.getT2()));
+    public Mono<TemplateResponsePage> readAllTemplates(String query, Pageable pageable) {
+        return templateRepository.findAllByNameContainingOrDescriptionContaining(query, query, pageable).map(this::mapTemplateToTemplateResponse).collectList().zipWith(templateRepository.countAllByNameContainingOrDescriptionContaining(query, query)).map(p-> new TemplateResponsePage(p.getT1(), p.getT2()));
     }
 
     @Override
@@ -56,33 +58,21 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Mono<List<String>> readAllParameters(String id) {
+    public Flux<String> readAllParameters(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map((Template::getParamerters));
+                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMapIterable((t -> findParamerters(t.getContent())));
     }
 
     private TemplateResponse mapTemplateToTemplateResponse(Template template) {
-        TemplateResponse templateDTO = new TemplateResponse();
-        templateDTO.setTemplateId(template.getId());
-        templateDTO.setName(template.getName());
-        templateDTO.setDescription(template.getDescription());
-        templateDTO.setContent(template.getContent());
-        templateDTO.setCreatedTime(template.getCreatedTime());
-        templateDTO.setUpdatedTime(template.getUpdatedTime());
-        return templateDTO;
+        TemplateResponse templateResponse = new TemplateResponse();
+        templateResponse.setTemplateId(template.getId());
+        templateResponse.setName(template.getName());
+        templateResponse.setDescription(template.getDescription());
+        templateResponse.setContent(template.getContent());
+        templateResponse.setType(TemplateType.PRINT);
+        templateResponse.setEngine(TemplateEngine.VELOCITY);
+        return templateResponse;
     }
-
-    private TemplateListResponse mapTemplateToTemplateListResponse(Template template) {
-        TemplateListResponse templateDTO = new TemplateListResponse();
-        templateDTO.setTemplateId(template.getId());
-        templateDTO.setName(template.getName());
-        templateDTO.setDescription(template.getDescription());
-        templateDTO.setContent(template.getContent());
-        templateDTO.setCreatedTime(template.getCreatedTime());
-        templateDTO.setUpdatedTime(template.getUpdatedTime());
-        return templateDTO;
-    }
-
 
     private Template mapTemplateRequestToTemplate(TemplateRequest request,Template oldTemplate) {
         Template template = Objects.requireNonNullElseGet(oldTemplate, Template::new);
@@ -92,11 +82,12 @@ public class TemplateServiceImpl implements TemplateService {
         return template;
     }
 
+    //TODO: lẤY PARAMERTER trong content với keyword $
     public List<String> findParamerters(String content) {
         List<String> paramerters = new ArrayList<>();
 
         // Define the regex pattern to match strings starting with a $ character
-        Pattern pattern = Pattern.compile("\\$\\w+");
+        Pattern pattern = Pattern.compile("\\$\\S+");
         Matcher matcher = pattern.matcher(content);
 
         // Find all matches in the content

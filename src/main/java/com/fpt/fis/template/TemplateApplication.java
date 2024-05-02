@@ -3,7 +3,6 @@ package com.fpt.fis.template;
 import com.fpt.fis.configuration.AuthorizationConfiguration;
 import com.fpt.fis.configuration.TenantSettingConfiguration;
 import com.fpt.fis.configuration.annotation.EnableNoneRelationDatabaseSecured;
-import com.fpt.fis.configuration.kafka.KafkaConsumerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
@@ -12,7 +11,7 @@ import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 @SpringBootApplication
 @EnableReactiveMongoAuditing
 @EnableNoneRelationDatabaseSecured
-@Import({AuthorizationConfiguration.class, TenantSettingConfiguration.class, KafkaConsumerConfiguration.class})
+@Import({AuthorizationConfiguration.class, TenantSettingConfiguration.class})
 public class TemplateApplication {
 
     public static void main(String[] args) {

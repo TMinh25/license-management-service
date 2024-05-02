@@ -12,4 +12,6 @@ public interface TemplateRepository extends ReactiveMongoRepository<Template, St
     Mono<Void> deleteTemplateById(String id);
 
     Flux<Template> findAllByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
+
+    Mono<Long> countAllByNameContainingOrDescriptionContaining(String name, String description);
 }
