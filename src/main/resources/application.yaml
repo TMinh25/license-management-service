@@ -1,0 +1,28 @@
+server:
+  port: ${SERVER_PORT:8091}
+turbo:
+  data:
+    platform: mongodb
+spring:
+  application:
+    name: template
+grpc:
+  client:
+    authorization-server:
+      address: ${AUTHOR_GRPC_SERVER:static://localhost:9082}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
+    tenant-server:
+      address: ${TENANT_GRPC_SERVER:static://localhost:9081}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
+logging:
+  level:
+    org:
+      springframework:
+        data: ${LOGGING_LEVEL:INFO}
+    com:
+      fpt:
+        fis: ${LOGGING_LEVEL:INFO}
