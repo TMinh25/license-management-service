@@ -5,8 +5,6 @@ import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
-import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
-import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.framework.data.exception.DataIsNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +58,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Flux<String> readAllParameters(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMapIterable((t -> findParamerters(t.getContent())));
+                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map(Template::getParamerters).flatMapMany(Flux::fromIterable);
     }
 
     private TemplateResponse mapTemplateToTemplateResponse(Template template) {
@@ -69,8 +67,8 @@ public class TemplateServiceImpl implements TemplateService {
         templateResponse.setName(template.getName());
         templateResponse.setDescription(template.getDescription());
         templateResponse.setContent(template.getContent());
-        templateResponse.setType(TemplateType.PRINT);
-        templateResponse.setEngine(TemplateEngine.VELOCITY);
+        templateResponse.setType(template.getType());
+        templateResponse.setEngine(template.getEngine());
         return templateResponse;
     }
 
@@ -79,6 +77,9 @@ public class TemplateServiceImpl implements TemplateService {
         template.setName(request.getName());
         template.setDescription(request.getDescription());
         template.setContent(request.getContent());
+        template.setType(request.getType());
+        template.setEngine(request.getEngine());
+        template.setParamerters(findParamerters(template.getContent()));
         return template;
     }
 

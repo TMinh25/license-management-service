@@ -37,9 +37,9 @@ public class Template {
     @Size(max=3000000)
     private String content;
 
-    private TemplateType type;
+    private TemplateType type = TemplateType.PRINT;
 
-    private TemplateEngine engine;
+    private TemplateEngine engine = TemplateEngine.VELOCITY;
 
     @CreatedDate
     private LocalDateTime createdTime;
