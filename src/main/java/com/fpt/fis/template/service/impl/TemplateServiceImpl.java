@@ -82,8 +82,7 @@ public class TemplateServiceImpl implements TemplateService {
         return template;
     }
 
-    //TODO: lẤY PARAMERTER trong content với keyword $
-    public List<String> findParamerters(String content) {
+    private List<String> findParamerters(String content) {
         List<String> paramerters = new ArrayList<>();
 
         // Define the regex pattern to match strings starting with a $ character
