@@ -50,9 +50,9 @@ public class TemplateRestController {
     @GetMapping("")
     @PreAuthorize("@author.hasPermission('template', 'view')")
     public Mono<TemplateResponsePage> readAllTemplates(
-            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String nameOrDescription,
             @ParameterObject Pageable pageable) {
-        return templateService.readAllTemplates(query, pageable);
+        return templateService.readAllTemplates(nameOrDescription, pageable);
     }
 
     @DeleteMapping("{id}")
