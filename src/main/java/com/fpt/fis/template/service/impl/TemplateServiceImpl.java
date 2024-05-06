@@ -1,12 +1,13 @@
 package com.fpt.fis.template.service.impl;
 
 import com.fpt.fis.template.model.request.TemplateRequest;
-import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.model.response.TemplateResponse;
+import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.framework.data.exception.DataIsNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,19 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Mono<TemplateResponsePage> readAllTemplates(String query, Pageable pageable) {
-        return templateRepository.findAllByNameContainingOrDescriptionContaining(query, query, pageable).map(this::mapTemplateToTemplateResponse).collectList().zipWith(templateRepository.countAllByNameContainingOrDescriptionContaining(query, query)).map(p-> new TemplateResponsePage(p.getT1(), p.getT2()));
+    public Mono<TemplateResponsePage> readAllTemplates(String nameOrDescription, Pageable pageable) {
+        Flux<Template> findData;
+        Mono<Long> totalCount;
+        if (StringUtils.isBlank(nameOrDescription)) {
+            findData = templateRepository.findByIdNotNull(pageable);
+            totalCount = templateRepository.countByIdNotNull();
+        } else {
+            findData = templateRepository.findByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription, pageable);
+            totalCount = templateRepository.countByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription);
+        }
+        return findData.map(this::mapTemplateToTemplateResponse).collectList()
+                .zipWith(totalCount, (content, total) ->
+                        new TemplateResponsePage(content, total));
     }
 
     @Override
@@ -52,7 +64,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Mono<Void> deleteTemplateById(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMap(t -> templateRepository.deleteTemplateById(t.getId()));
+                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMap(t -> templateRepository.deleteById(id));
     }
 
     @Override
@@ -63,7 +75,7 @@ public class TemplateServiceImpl implements TemplateService {
 
     private TemplateResponse mapTemplateToTemplateResponse(Template template) {
         TemplateResponse templateResponse = new TemplateResponse();
-        templateResponse.setTemplateId(template.getId());
+        templateResponse.setId(template.getId());
         templateResponse.setName(template.getName());
         templateResponse.setDescription(template.getDescription());
         templateResponse.setContent(template.getContent());
@@ -72,19 +84,19 @@ public class TemplateServiceImpl implements TemplateService {
         return templateResponse;
     }
 
-    private Template mapTemplateRequestToTemplate(TemplateRequest request,Template oldTemplate) {
+    private Template mapTemplateRequestToTemplate(TemplateRequest request, Template oldTemplate) {
         Template template = Objects.requireNonNullElseGet(oldTemplate, Template::new);
         template.setName(request.getName());
         template.setDescription(request.getDescription());
         template.setContent(request.getContent());
         template.setType(request.getType());
         template.setEngine(request.getEngine());
-        template.setParamerters(findParamerters(template.getContent()));
+        template.setParamerters(findParameters(template.getContent()));
         return template;
     }
 
-    private List<String> findParamerters(String content) {
-        List<String> paramerters = new ArrayList<>();
+    private List<String> findParameters(String content) {
+        List<String> parameters = new ArrayList<>();
 
         // Define the regex pattern to match strings starting with a $ character
         Pattern pattern = Pattern.compile("\\$\\S+");
@@ -92,9 +104,9 @@ public class TemplateServiceImpl implements TemplateService {
 
         // Find all matches in the content
         while (matcher.find()) {
-            paramerters.add(matcher.group());
+            parameters.add(matcher.group());
         }
 
-        return paramerters;
+        return parameters;
     }
 }

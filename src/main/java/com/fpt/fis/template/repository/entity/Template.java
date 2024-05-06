@@ -53,5 +53,5 @@ public class Template {
     @LastModifiedBy
     private String updatedBy;
 
-    private List<String> paramerters;
+    private List<String> parameters;
 }

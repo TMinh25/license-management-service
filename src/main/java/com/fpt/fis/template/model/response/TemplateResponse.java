@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class TemplateResponse {
-    private String templateId;
+    private String id;
 
     private String name;
 

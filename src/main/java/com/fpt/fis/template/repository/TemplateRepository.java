@@ -9,9 +9,12 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface TemplateRepository extends ReactiveMongoRepository<Template, String>{
-    Mono<Void> deleteTemplateById(String id);
 
-    Flux<Template> findAllByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
+    Flux<Template> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
 
-    Mono<Long> countAllByNameContainingOrDescriptionContaining(String name, String description);
+    Flux<Template> findByIdNotNull(Pageable pageable);
+
+    Mono<Long> countByNameContainingOrDescriptionContaining(String name, String description);
+
+    Mono<Long> countByIdNotNull();
 }

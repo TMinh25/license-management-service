@@ -5,12 +5,12 @@
     <groupId>com.fpt.fis.template</groupId>
     <artifactId>template-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>template</name>
+    <name>template-service</name>
     <description>template</description>
     <parent>
         <groupId>com.fpt.framework</groupId>
         <artifactId>turbo-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <repositories>
         <repository>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>com.fpt.fis</groupId>
             <artifactId>flash-boost</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
