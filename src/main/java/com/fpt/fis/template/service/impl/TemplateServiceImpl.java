@@ -70,7 +70,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Flux<String> readAllParameters(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map(Template::getParamerters).flatMapMany(Flux::fromIterable);
+                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map(Template::getParameters).flatMapMany(Flux::fromIterable);
     }
 
     private TemplateResponse mapTemplateToTemplateResponse(Template template) {
@@ -91,7 +91,7 @@ public class TemplateServiceImpl implements TemplateService {
         template.setContent(request.getContent());
         template.setType(request.getType());
         template.setEngine(request.getEngine());
-        template.setParamerters(findParameters(template.getContent()));
+        template.setParameters(findParameters(template.getContent()));
         return template;
     }
 
