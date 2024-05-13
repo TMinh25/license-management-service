@@ -35,6 +35,12 @@ public class TemplateRestController {
         return templateService.readTemplateById(id);
     }
 
+    @GetMapping("{id}/content")
+    @PreAuthorize("@author.hasPermission('template', 'view-detail')")
+    public Mono<String> readTemplateContentById(@Parameter @PathVariable("id") String id) {
+        return templateService.readTemplateContentById(id);
+    }
+
     @PostMapping()
     @PreAuthorize("@author.hasPermission('template', 'create')")
     public Mono<TemplateResponse> createTemplate(@RequestBody @Valid TemplateRequest request) {
