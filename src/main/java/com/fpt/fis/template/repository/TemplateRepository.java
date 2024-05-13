@@ -12,9 +12,9 @@ public interface TemplateRepository extends ReactiveMongoRepository<Template, St
 
     Flux<Template> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
 
-    Flux<Template> findByIdNotNull(Pageable pageable);
+    Flux<Template> findAllBy(Pageable pageable);
 
     Mono<Long> countByNameContainingOrDescriptionContaining(String name, String description);
 
-    Mono<Long> countByIdNotNull();
+    Mono<Long> countAllBy();
 }

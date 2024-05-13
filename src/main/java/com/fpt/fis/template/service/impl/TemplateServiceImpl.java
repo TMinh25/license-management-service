@@ -1,12 +1,12 @@
 package com.fpt.fis.template.service.impl;
 
+import com.fpt.fis.template.exception.TemplateIsNotFoundException;
 import com.fpt.fis.template.model.request.TemplateRequest;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
 import com.fpt.fis.template.service.TemplateService;
-import com.fpt.framework.data.exception.DataIsNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +29,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Mono<TemplateResponse> readTemplateById(String id) {
         return templateRepository.findById(id).map(this::mapTemplateToTemplateResponse).switchIfEmpty(Mono
-                .error(new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id))));
+                .error(new TemplateIsNotFoundException(id)));
     }
 
     @Override
@@ -37,8 +37,8 @@ public class TemplateServiceImpl implements TemplateService {
         Flux<Template> findData;
         Mono<Long> totalCount;
         if (StringUtils.isBlank(nameOrDescription)) {
-            findData = templateRepository.findByIdNotNull(pageable);
-            totalCount = templateRepository.countByIdNotNull();
+            findData = templateRepository.findAllBy(pageable);
+            totalCount = templateRepository.countAllBy();
         } else {
             findData = templateRepository.findByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription, pageable);
             totalCount = templateRepository.countByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription);
@@ -57,20 +57,27 @@ public class TemplateServiceImpl implements TemplateService {
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
         return templateRepository.findById(id)
                 .switchIfEmpty(Mono.error(
-                        new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id))))
+                        new TemplateIsNotFoundException(id)))
                 .flatMap(t -> templateRepository.save(mapTemplateRequestToTemplate(request, t))).map(this::mapTemplateToTemplateResponse);
     }
 
     @Override
     public Mono<Void> deleteTemplateById(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).flatMap(t -> templateRepository.deleteById(id));
+                new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));
     }
 
     @Override
     public Flux<String> readAllParameters(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new DataIsNotFoundException("Template", String.format("Not found template with id: %s", id)))).map(Template::getParameters).flatMapMany(Flux::fromIterable);
+                new TemplateIsNotFoundException(id))).map(Template::getParameters).flatMapMany(Flux::fromIterable);
+    }
+
+    @Override
+    public Mono<String> readTemplateContentById(String id) {
+        return templateRepository.findById(id).switchIfEmpty(Mono.error(
+                new TemplateIsNotFoundException(id))).map(t ->
+                t.getContent());
     }
 
     private TemplateResponse mapTemplateToTemplateResponse(Template template) {

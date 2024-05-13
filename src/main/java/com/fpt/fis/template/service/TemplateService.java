@@ -19,4 +19,6 @@ public interface TemplateService {
     Mono<Void> deleteTemplateById(String id);
 
     Flux<String> readAllParameters(String id);
+
+    Mono<String> readTemplateContentById(String id);
 }
