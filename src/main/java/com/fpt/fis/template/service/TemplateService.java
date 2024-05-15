@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface TemplateService {
     Mono<TemplateResponse> readTemplateById(String id);
 
@@ -18,7 +20,7 @@ public interface TemplateService {
 
     Mono<Void> deleteTemplateById(String id);
 
-    Flux<String> readAllParameters(String id);
+    Mono<List<String>> readAllParameters(String id);
 
     Mono<String> readTemplateContentById(String id);
 }

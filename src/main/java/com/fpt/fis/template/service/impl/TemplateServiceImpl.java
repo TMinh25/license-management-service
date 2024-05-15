@@ -68,9 +68,23 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Flux<String> readAllParameters(String id) {
-        return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new TemplateIsNotFoundException(id))).map(Template::getParameters).flatMapMany(Flux::fromIterable);
+    public Mono<List<String>> readAllParameters(String id) {
+        Mono<Template> template = templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)));
+        return template.map(t -> {
+            List<String> parameters = t.getParameters();
+            List<String> modifiedParameters = new ArrayList<>();
+
+            // Iterate through each parameter and remove the first '$' character
+            for (String parameter : parameters) {
+                if (parameter.startsWith("$")) {
+                    modifiedParameters.add(parameter.substring(1));
+                } else {
+                    modifiedParameters.add(parameter);
+                }
+            }
+
+            return modifiedParameters;
+        });
     }
 
     @Override
