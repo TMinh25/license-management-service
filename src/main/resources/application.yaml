@@ -3,6 +3,8 @@ server:
 turbo:
   data:
     platform: mongodb
+  security:
+    ignore-path: ${AUTH_IGNORE_PATH:/templates/*/content}
 spring:
   application:
     name: template
