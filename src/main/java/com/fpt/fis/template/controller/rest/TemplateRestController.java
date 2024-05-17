@@ -1,8 +1,9 @@
 package com.fpt.fis.template.controller.rest;
 
 import com.fpt.fis.template.model.request.TemplateRequest;
-import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.model.response.TemplateResponse;
+import com.fpt.fis.template.model.response.TemplateResponsePage;
+import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -10,8 +11,15 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -51,8 +59,9 @@ public class TemplateRestController {
     @PreAuthorize("@author.hasPermission('template', 'view')")
     public Mono<TemplateResponsePage> readAllTemplates(
             @RequestParam(required = false) String nameOrDescription,
+            @RequestParam(required = false) TemplateType type,
             @ParameterObject Pageable pageable) {
-        return templateService.readAllTemplates(nameOrDescription, pageable);
+        return templateService.readAllTemplates(nameOrDescription, type, pageable);
     }
 
     @DeleteMapping("{id}")

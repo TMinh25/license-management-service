@@ -8,13 +8,5 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface TemplateRepository extends ReactiveMongoRepository<Template, String>{
-
-    Flux<Template> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
-
-    Flux<Template> findAllBy(Pageable pageable);
-
-    Mono<Long> countByNameContainingOrDescriptionContaining(String name, String description);
-
-    Mono<Long> countAllBy();
+public interface TemplateRepository extends ReactiveMongoRepository<Template, String>, TemplateDataRepository {
 }

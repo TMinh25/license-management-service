@@ -6,7 +6,11 @@ import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.model.response.TemplateResponsePage;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
+import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
+import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
+import com.fpt.fis.template.service.TemplateVariableExtractor;
+import com.fpt.fis.template.service.TemplateVariableExtractorFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +18,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class TemplateServiceImpl implements TemplateService {
@@ -33,16 +34,10 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Mono<TemplateResponsePage> readAllTemplates(String nameOrDescription, Pageable pageable) {
-        Flux<Template> findData;
-        Mono<Long> totalCount;
-        if (StringUtils.isBlank(nameOrDescription)) {
-            findData = templateRepository.findAllBy(pageable);
-            totalCount = templateRepository.countAllBy();
-        } else {
-            findData = templateRepository.findByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription, pageable);
-            totalCount = templateRepository.countByNameContainingOrDescriptionContaining(nameOrDescription, nameOrDescription);
-        }
+    public Mono<TemplateResponsePage> readAllTemplates(String nameOrDescription, TemplateType type, Pageable pageable) {
+        Flux<Template> findData = templateRepository.findByTypeAndNameOrDescription(type, nameOrDescription, nameOrDescription, pageable);
+        Mono<Long> totalCount = templateRepository.countByAndNameOrDescription(type, nameOrDescription, nameOrDescription);
+
         return findData.map(this::mapTemplateToTemplateResponse).collectList()
                 .zipWith(totalCount, (content, total) ->
                         new TemplateResponsePage(content, total));
@@ -69,22 +64,9 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<List<String>> readAllParameters(String id) {
-        Mono<Template> template = templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)));
-        return template.map(t -> {
-            List<String> parameters = t.getParameters();
-            List<String> modifiedParameters = new ArrayList<>();
+        return templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)))
+                .map(template -> template.getParameters());
 
-            // Iterate through each parameter and remove the first '$' character
-            for (String parameter : parameters) {
-                if (parameter.startsWith("$")) {
-                    modifiedParameters.add(parameter.substring(1));
-                } else {
-                    modifiedParameters.add(parameter);
-                }
-            }
-
-            return modifiedParameters;
-        });
     }
 
     @Override
@@ -112,22 +94,12 @@ public class TemplateServiceImpl implements TemplateService {
         template.setContent(request.getContent());
         template.setType(request.getType());
         template.setEngine(request.getEngine());
-        template.setParameters(findParameters(template.getContent()));
+        template.setParameters(findParameters(template.getContent(), template.getEngine()));
         return template;
     }
 
-    private List<String> findParameters(String content) {
-        List<String> parameters = new ArrayList<>();
-
-        // Define the regex pattern to match strings starting with a $ character
-        Pattern pattern = Pattern.compile("\\$\\S+");
-        Matcher matcher = pattern.matcher(content);
-
-        // Find all matches in the content
-        while (matcher.find()) {
-            parameters.add(matcher.group());
-        }
-
-        return parameters;
+    private List<String> findParameters(String content, TemplateEngine engine) {
+        TemplateVariableExtractor templateVariableExtractor = TemplateVariableExtractorFactory.factoryExtractor(engine);
+        return templateVariableExtractor.extractVariables(content);
     }
 }
