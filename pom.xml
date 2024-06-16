@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fpt.fis.template</groupId>
     <artifactId>template-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <name>template-service</name>
     <description>template</description>
     <parent>
