@@ -28,7 +28,6 @@ import java.util.List;
 @RequestMapping("templates")
 public class TemplateRestController {
     @Autowired
-
     private TemplateService templateService;
 
     @GetMapping("{id}")

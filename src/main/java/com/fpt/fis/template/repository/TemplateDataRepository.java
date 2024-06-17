@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface TemplateDataRepository {
 
-    Flux<Template> findByTypeAndNameOrDescription(TemplateType type, String name, String description, Pageable pageable);
+    Flux<Template> findByTypeAndNameOrDescription(TemplateType type, String nameOrDescription, Pageable pageable);
 
-    Mono<Long> countByAndNameOrDescription(TemplateType type, String name, String description);
+    Mono<Long> countByAndNameOrDescription(TemplateType type, String nameOrDescription);
 }

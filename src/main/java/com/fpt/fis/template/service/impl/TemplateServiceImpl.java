@@ -35,8 +35,8 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponsePage> readAllTemplates(String nameOrDescription, TemplateType type, Pageable pageable) {
-        Flux<Template> findData = templateRepository.findByTypeAndNameOrDescription(type, nameOrDescription, nameOrDescription, pageable);
-        Mono<Long> totalCount = templateRepository.countByAndNameOrDescription(type, nameOrDescription, nameOrDescription);
+        Flux<Template> findData = templateRepository.findByTypeAndNameOrDescription(type, nameOrDescription, pageable);
+        Mono<Long> totalCount = templateRepository.countByAndNameOrDescription(type, nameOrDescription);
 
         return findData.map(this::mapTemplateToTemplateResponse).collectList()
                 .zipWith(totalCount, (content, total) ->
