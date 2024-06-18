@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM public.ecr.aws/docker/library/maven:3.8.1-openjdk-17-slim AS build
+FROM default-route-openshift-image-registry.apps.xplat.fis.com.vn/fis-mbf-uservice-dev/workpro-be-base-image AS build
 COPY src /home/app/src
 COPY settings.xml /home/app
 COPY pom.xml /home/app
