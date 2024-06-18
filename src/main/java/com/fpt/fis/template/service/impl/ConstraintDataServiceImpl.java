@@ -27,7 +27,7 @@ public class ConstraintDataServiceImpl implements ConstraintDataService {
 
     @Override
     public Flux<ConstraintDataResponse> updateConstraintData(ConstraintDataRequest request) {
-        return constraintDataRepository.deleteByUsageIAndUsageTypedAll(request.getUsageId(), request.getUsageType()).thenMany(constraintDataRepository.insert(mapConstraintDataRequestToConstraintData(request)).map(this::mapConstraintDataToConstraintDataResponse));
+        return constraintDataRepository.deleteByUsageIdAndUsageType(request.getUsageId(), request.getUsageType()).thenMany(constraintDataRepository.insert(mapConstraintDataRequestToConstraintData(request)).map(this::mapConstraintDataToConstraintDataResponse));
     }
 
     private List<ConstraintData> mapConstraintDataRequestToConstraintData(ConstraintDataRequest request) {

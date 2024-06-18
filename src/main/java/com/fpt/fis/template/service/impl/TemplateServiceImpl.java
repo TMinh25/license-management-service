@@ -11,7 +11,6 @@ import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.fis.template.service.TemplateVariableExtractor;
 import com.fpt.fis.template.service.TemplateVariableExtractorFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
