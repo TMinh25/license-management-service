@@ -12,7 +12,7 @@ public class ConstraintDataResponse {
 
     private String resourceId;
 
-    private String usageId;
+    private int usageId;
 
     private UsageType usageType;
 }

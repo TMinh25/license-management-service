@@ -1,4 +1,5 @@
 package com.fpt.fis.template.model.request;
+import java.util.List;
 
 import com.fpt.fis.template.repository.entity.enums.UsageType;
 
@@ -13,9 +14,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ConstraintDataRequest {
 
-    private String resourceId;
+    private List<String> resourceIds;
 
-    private String usageId;
+    private int usageId;
 
     private UsageType usageType;
 

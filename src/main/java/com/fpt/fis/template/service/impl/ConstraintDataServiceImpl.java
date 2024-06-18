@@ -1,18 +1,18 @@
 package com.fpt.fis.template.service.impl;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fpt.fis.template.exception.ConstraintDataIsNotFoundException;
 import com.fpt.fis.template.model.request.ConstraintDataRequest;
 import com.fpt.fis.template.model.response.ConstraintDataResponse;
 import com.fpt.fis.template.repository.ConstraintDataRepository;
 import com.fpt.fis.template.repository.entity.ConstraintData;
 import com.fpt.fis.template.service.ConstraintDataService;
 
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 @Service
 public class ConstraintDataServiceImpl implements ConstraintDataService {
@@ -21,24 +21,25 @@ public class ConstraintDataServiceImpl implements ConstraintDataService {
     private ConstraintDataRepository constraintDataRepository;
 
     @Override
-    public Mono<ConstraintDataResponse> createConstraintData(ConstraintDataRequest request) {
-        return constraintDataRepository.insert(mapConstraintDataRequestToConstraintData(request, null)).map(this::mapConstraintDataToConstraintDataResponse);
+    public Flux<ConstraintDataResponse> createConstraintData(ConstraintDataRequest request) {
+        return constraintDataRepository.insert(mapConstraintDataRequestToConstraintData(request)).map(this::mapConstraintDataToConstraintDataResponse);
     }
 
     @Override
-    public Mono<ConstraintDataResponse> updateConstraintData (String id, ConstraintDataRequest request) {
-        return constraintDataRepository.findById(id)
-                .switchIfEmpty(Mono.error(
-                        new ConstraintDataIsNotFoundException(id)))
-                .flatMap(t -> constraintDataRepository.save(mapConstraintDataRequestToConstraintData(request, t))).map(this::mapConstraintDataToConstraintDataResponse);
+    public Flux<ConstraintDataResponse> updateConstraintData(ConstraintDataRequest request) {
+        return constraintDataRepository.deleteByUsageIAndUsageTypedAll(request.getUsageId(), request.getUsageType()).thenMany(constraintDataRepository.insert(mapConstraintDataRequestToConstraintData(request)).map(this::mapConstraintDataToConstraintDataResponse));
     }
 
-    private ConstraintData mapConstraintDataRequestToConstraintData(ConstraintDataRequest request, ConstraintData oldConstraintData) {
-        ConstraintData constraintData = Objects.requireNonNullElseGet(oldConstraintData, ConstraintData::new);
-        constraintData.setUsageId(request.getUsageId());
-        constraintData.setResourceId(request.getResourceId());
-        constraintData.setUsageType(request.getUsageType());
-        return constraintData;
+    private List<ConstraintData> mapConstraintDataRequestToConstraintData(ConstraintDataRequest request) {
+        List<ConstraintData> result = new ArrayList<>();
+        for (String resourceId : request.getResourceIds()) {
+            ConstraintData newConstraintData = new ConstraintData();
+            newConstraintData.setUsageId(request.getUsageId());
+            newConstraintData.setResourceId(resourceId);
+            newConstraintData.setUsageType(request.getUsageType());
+            result.add(newConstraintData);
+        }
+        return result;
     }
 
     private ConstraintDataResponse mapConstraintDataToConstraintDataResponse(ConstraintData constraintData) {

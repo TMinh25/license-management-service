@@ -20,7 +20,7 @@ public class ConstraintData {
 
     private String resourceId;
 
-    private String usageId;
+    private int usageId;
 
     private UsageType usageType;
 
