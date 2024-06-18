@@ -14,4 +14,6 @@ public interface ConstraintDataRepository extends ReactiveMongoRepository<Constr
 
     Mono<Void> deleteByUsageIdAndUsageType(int usageId, UsageType usageType);
 
+    Mono<Boolean> existsByResourceId(String resourceId);
+
 }

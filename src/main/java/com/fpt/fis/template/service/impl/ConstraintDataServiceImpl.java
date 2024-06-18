@@ -3,6 +3,7 @@ package com.fpt.fis.template.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,11 +34,13 @@ public class ConstraintDataServiceImpl implements ConstraintDataService {
     private List<ConstraintData> mapConstraintDataRequestToConstraintData(ConstraintDataRequest request) {
         List<ConstraintData> result = new ArrayList<>();
         for (String resourceId : request.getResourceIds()) {
-            ConstraintData newConstraintData = new ConstraintData();
-            newConstraintData.setUsageId(request.getUsageId());
-            newConstraintData.setResourceId(resourceId);
-            newConstraintData.setUsageType(request.getUsageType());
-            result.add(newConstraintData);
+            if(StringUtils.isNotBlank(resourceId)) {
+                ConstraintData newConstraintData = new ConstraintData();
+                newConstraintData.setUsageId(request.getUsageId());
+                newConstraintData.setResourceId(resourceId);
+                newConstraintData.setUsageType(request.getUsageType());
+                result.add(newConstraintData);
+            }
         }
         return result;
     }

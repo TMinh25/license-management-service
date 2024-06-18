@@ -1,9 +1,11 @@
 package com.fpt.fis.template.service.impl;
 
 import com.fpt.fis.template.exception.TemplateIsNotFoundException;
+import com.fpt.fis.template.exception.ValidationException;
 import com.fpt.fis.template.model.request.TemplateRequest;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.model.response.TemplateResponsePage;
+import com.fpt.fis.template.repository.ConstraintDataRepository;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
 import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
@@ -11,6 +13,7 @@ import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.fis.template.service.TemplateVariableExtractor;
 import com.fpt.fis.template.service.TemplateVariableExtractorFactory;
+import com.fpt.fis.template.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,9 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Autowired
     private TemplateRepository templateRepository;
+
+    @Autowired
+    private ConstraintDataRepository constraintDataRepository;
 
     @Override
     public Mono<TemplateResponse> readTemplateById(String id) {
@@ -49,16 +55,28 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
-        return templateRepository.findById(id)
+        return constraintDataRepository.existsByResourceId(id).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new ValidationException(Constants.ErrorType.EDIT_USED.getCode(), Constants.ErrorType.EDIT_USED.getMessage()));
+            } else {
+                return templateRepository.findById(id)
                 .switchIfEmpty(Mono.error(
                         new TemplateIsNotFoundException(id)))
                 .flatMap(t -> templateRepository.save(mapTemplateRequestToTemplate(request, t))).map(this::mapTemplateToTemplateResponse);
+            }
+        });
+        
     }
 
     @Override
     public Mono<Void> deleteTemplateById(String id) {
-        return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));
+        return constraintDataRepository.existsByResourceId(id).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new ValidationException(Constants.ErrorType.DELETE_USED.getCode(), Constants.ErrorType.DELETE_USED.getMessage()));
+            } else {
+                return templateRepository.findById(id).switchIfEmpty(Mono.error(
+                    new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));            }
+        });
     }
 
     @Override
