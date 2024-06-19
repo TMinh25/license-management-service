@@ -4,7 +4,8 @@ public class Constants {
 
     public enum ErrorType {
         DELETE_USED("DELETE_USED", "That print template has been used. Cannot be deleted."),
-        EDIT_USED("EDIT_USED", "That print template has been used. Cannot be edited.");
+        EDIT_USED("EDIT_USED", "That print template has been used. Cannot be edited."),
+        DUPLICATED_NAME("name", "DUPLICATED_NAME");
 
         private final String code;
         private final String message;

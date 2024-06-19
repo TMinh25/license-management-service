@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class Template {
 
     @NotEmpty(message = "Template's name must not be empty")
     @Size(min=1, max=200)
+    @Indexed(name = "unique_name", unique = true)
     private String name;
 
     @Size(max=300)

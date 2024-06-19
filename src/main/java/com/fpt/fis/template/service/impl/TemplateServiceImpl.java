@@ -50,19 +50,30 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponse> createTemplate(TemplateRequest request) {
-        return templateRepository.insert(mapTemplateRequestToTemplate(request, null)).map(this::mapTemplateToTemplateResponse);
+        return templateRepository.existsByName(request.getName()).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new ValidationException(Constants.ErrorType.DUPLICATED_NAME.getCode(), Constants.ErrorType.DUPLICATED_NAME.getMessage()));
+            } else {
+                return templateRepository.insert(mapTemplateRequestToTemplate(request, null)).map(this::mapTemplateToTemplateResponse);
+            }
+        });
     }
 
     @Override
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
-        return constraintDataRepository.existsByResourceId(id).flatMap(exists -> {
-            if (exists) {
+        return constraintDataRepository.existsByResourceId(id).flatMap(constraintDataExists -> {
+            if (constraintDataExists) {
                 return Mono.error(new ValidationException(Constants.ErrorType.EDIT_USED.getCode(), Constants.ErrorType.EDIT_USED.getMessage()));
             } else {
-                return templateRepository.findById(id)
-                .switchIfEmpty(Mono.error(
-                        new TemplateIsNotFoundException(id)))
-                .flatMap(t -> templateRepository.save(mapTemplateRequestToTemplate(request, t))).map(this::mapTemplateToTemplateResponse);
+                return templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id))).flatMap(t -> {
+                    return templateRepository.existsByName(request.getName()).flatMap(templateExists -> {
+                        if (templateExists) {
+                            return Mono.error(new ValidationException(Constants.ErrorType.DUPLICATED_NAME.getCode(), Constants.ErrorType.DUPLICATED_NAME.getMessage()));
+                        } else {
+                            return templateRepository.save(mapTemplateRequestToTemplate(request, t)).map(this::mapTemplateToTemplateResponse);
+                        }
+                    });
+                });
             }
         });
         
