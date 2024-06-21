@@ -24,28 +24,25 @@ public class TemplateDataRepositoryImpl implements TemplateDataRepository {
     private ReactiveNonRelationPermissionQuery permissionQuery;
 
     @Override
-    public Flux<Template> findByTypeAndNameOrDescription(TemplateType type, String name, String description, Pageable pageable) {
-        Query query = buildQuery(type, name, description).with(pageable);
+    public Flux<Template> findByTypeAndNameOrDescription(TemplateType type, String nameOrDescription, Pageable pageable) {
+        Query query = buildQuery(type, nameOrDescription).with(pageable);
         return this.permissionQuery.appendQueryPermission(query).flatMapMany(q -> mongoTemplate.find(q, Template.class));
     }
 
-    private Query buildQuery(TemplateType type, String name, String description) {
+    private Query buildQuery(TemplateType type, String nameOrDescription) {
         Query query = new Query();
         if (type != null) {
             query.addCriteria(Criteria.where("type").is(type));
         }
-        if (StringUtils.isNotBlank(name)) {
-            query.addCriteria(Criteria.where("name").regex(name));
-        }
-        if (StringUtils.isNotBlank(description)) {
-            query.addCriteria(Criteria.where("description").regex(description));
+        if (StringUtils.isNotBlank(nameOrDescription)) {
+            query.addCriteria(new Criteria().orOperator(Criteria.where("name").regex(nameOrDescription, "i"), Criteria.where("description").regex(nameOrDescription, "i")));
         }
         return query;
     }
 
     @Override
-    public Mono<Long> countByAndNameOrDescription(TemplateType type, String name, String description) {
-        Query query = buildQuery(type, name, description);
+    public Mono<Long> countByAndNameOrDescription(TemplateType type, String nameOrDescription) {
+        Query query = buildQuery(type, nameOrDescription);
         return this.permissionQuery.appendQueryPermission(query).flatMap(q -> mongoTemplate.count(q, Template.class));
     }
 }
