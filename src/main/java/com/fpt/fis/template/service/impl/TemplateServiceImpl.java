@@ -1,11 +1,11 @@
 package com.fpt.fis.template.service.impl;
 
+import com.fpt.fis.template.exception.TemplateIsDuplicatedName;
+import com.fpt.fis.template.exception.TemplateIsInUsedException;
 import com.fpt.fis.template.exception.TemplateIsNotFoundException;
-import com.fpt.fis.template.exception.ValidationException;
 import com.fpt.fis.template.model.request.TemplateRequest;
 import com.fpt.fis.template.model.response.TemplateResponse;
 import com.fpt.fis.template.model.response.TemplateResponsePage;
-import com.fpt.fis.template.repository.ConstraintDataRepository;
 import com.fpt.fis.template.repository.TemplateRepository;
 import com.fpt.fis.template.repository.entity.Template;
 import com.fpt.fis.template.repository.entity.enums.TemplateEngine;
@@ -13,7 +13,7 @@ import com.fpt.fis.template.repository.entity.enums.TemplateType;
 import com.fpt.fis.template.service.TemplateService;
 import com.fpt.fis.template.service.TemplateVariableExtractor;
 import com.fpt.fis.template.service.TemplateVariableExtractorFactory;
-import com.fpt.fis.template.utils.Constants;
+import com.fpt.framework.data.constraint.service.DataConstraintService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class TemplateServiceImpl implements TemplateService {
     private TemplateRepository templateRepository;
 
     @Autowired
-    private ConstraintDataRepository constraintDataRepository;
+    private DataConstraintService dataConstraintService;
 
     @Override
     public Mono<TemplateResponse> readTemplateById(String id) {
@@ -50,9 +50,10 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponse> createTemplate(TemplateRequest request) {
-        return templateRepository.existsByName(request.getName()).flatMap(exists -> {
+        String name = request.getName();
+        return templateRepository.existsByName(name).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new ValidationException(Constants.ErrorType.DUPLICATED_NAME.getCode(), Constants.ErrorType.DUPLICATED_NAME.getMessage()));
+                return Mono.error(new TemplateIsDuplicatedName(name));
             } else {
                 return templateRepository.insert(mapTemplateRequestToTemplate(request, null)).map(this::mapTemplateToTemplateResponse);
             }
@@ -61,29 +62,25 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
-        return constraintDataRepository.existsByResourceId(id).flatMap(constraintDataExists -> {
-            if (constraintDataExists) {
-                return Mono.error(new ValidationException(Constants.ErrorType.EDIT_USED.getCode(), Constants.ErrorType.EDIT_USED.getMessage()));
-            } else {
-                return templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id))).flatMap(t -> {
-                    return templateRepository.existsByName(request.getName()).flatMap(templateExists -> {
-                        if (templateExists) {
-                            return Mono.error(new ValidationException(Constants.ErrorType.DUPLICATED_NAME.getCode(), Constants.ErrorType.DUPLICATED_NAME.getMessage()));
-                        } else {
-                            return templateRepository.save(mapTemplateRequestToTemplate(request, t)).map(this::mapTemplateToTemplateResponse);
-                        }
-                    });
+        String name = request.getName();
+        return templateRepository.findByName(name).filter(template -> !id.equals(template.getId()))
+                .map(template -> false).defaultIfEmpty(true).flatMap(valid -> {
+                    if (valid) {
+                        return templateRepository.findById(id)
+                                .switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)))
+                                .flatMap(t -> templateRepository.save(mapTemplateRequestToTemplate(request, t))
+                                        .map(this::mapTemplateToTemplateResponse));
+                    } else {
+                        return Mono.error(new TemplateIsDuplicatedName(name));
+                    }
                 });
-            }
-        });
-        
     }
 
     @Override
     public Mono<Void> deleteTemplateById(String id) {
-        return constraintDataRepository.existsByResourceId(id).flatMap(exists -> {
+        return dataConstraintService.hasConstraint(id).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new ValidationException(Constants.ErrorType.DELETE_USED.getCode(), Constants.ErrorType.DELETE_USED.getMessage()));
+                return Mono.error(new TemplateIsInUsedException("Template %s".formatted(id),"unknown"));
             } else {
                 return templateRepository.findById(id).switchIfEmpty(Mono.error(
                     new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));            }

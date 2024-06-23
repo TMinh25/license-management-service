@@ -12,4 +12,6 @@ public interface TemplateRepository extends ReactiveMongoRepository<Template, St
 
     Mono<Boolean> existsByName(String name);
 
+    Mono<Template> findByName(String name);
+
 }

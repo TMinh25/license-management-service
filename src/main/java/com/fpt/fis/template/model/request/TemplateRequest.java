@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Getter
 @Setter
@@ -17,6 +18,7 @@ public class TemplateRequest {
 
     @NotEmpty(message = "EMPTY_NAME")
     @Size(max=200, message = "NAME_LENGTH")
+    @Indexed(unique = true)
     private String name;
 
     @Size(max=300)
