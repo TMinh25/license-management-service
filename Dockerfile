@@ -10,7 +10,7 @@ RUN mvn -f /home/app/pom.xml clean package install -s /home/app/settings.xml -Ds
 #
 # Package stage
 #
-FROM public.ecr.aws/docker/library/openjdk:17-jdk-oracle
+FROM default-route-openshift-image-registry.apps.xplat.fis.com.vn/fis-mbf-uservice-dev/workpro-openjdk-17
 ENV JAVA_OPTS=""
 EXPOSE 8080
 ARG JAR_FILE=/home/app/target/*.jar
