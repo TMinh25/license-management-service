@@ -62,8 +62,12 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
-        String name = request.getName();
-        return templateRepository.findByName(name).filter(template -> !id.equals(template.getId()))
+        return dataConstraintService.hasConstraint(id).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new TemplateIsInUsedException("Template %s".formatted(id),"unknown"));
+            } else {        
+                String name = request.getName();
+                return templateRepository.findByName(name).filter(template -> !id.equals(template.getId()))
                 .map(template -> false).defaultIfEmpty(true).flatMap(valid -> {
                     if (valid) {
                         return templateRepository.findById(id)
@@ -74,6 +78,8 @@ public class TemplateServiceImpl implements TemplateService {
                         return Mono.error(new TemplateIsDuplicatedName(name));
                     }
                 });
+            }
+        });
     }
 
     @Override
