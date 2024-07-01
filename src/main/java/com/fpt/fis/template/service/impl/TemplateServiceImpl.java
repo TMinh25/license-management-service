@@ -64,7 +64,7 @@ public class TemplateServiceImpl implements TemplateService {
     public Mono<TemplateResponse> updateTemplate(String id, TemplateRequest request) {
         return dataConstraintService.hasConstraint(id).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new TemplateIsInUsedException("The printed template is in use and cannot be edited"));
+                return Mono.error(new TemplateIsInUsedException("Cannot edit this print template because it's being used"));
             } else {        
                 String name = request.getName();
                 return templateRepository.findByName(name).filter(template -> !id.equals(template.getId()))
@@ -86,7 +86,7 @@ public class TemplateServiceImpl implements TemplateService {
     public Mono<Void> deleteTemplateById(String id) {
         return dataConstraintService.hasConstraint(id).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new TemplateIsInUsedException("The print template is in use and cannot be deleted"));
+                return Mono.error(new TemplateIsInUsedException("Cannot delete this print template because it's being used"));
             } else {
                 return templateRepository.findById(id).switchIfEmpty(Mono.error(
                     new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));            }
