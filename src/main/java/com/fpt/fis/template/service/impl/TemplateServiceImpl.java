@@ -35,7 +35,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Mono<TemplateResponse> readTemplateById(String id) {
         return templateRepository.findById(id).map(this::mapTemplateToTemplateResponse).switchIfEmpty(Mono
-                .error(new TemplateIsNotFoundException(id)));
+                .error(new TemplateIsNotFoundException()));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TemplateServiceImpl implements TemplateService {
         String name = request.getName();
         return templateRepository.existsByName(name).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new TemplateIsDuplicatedName(name));
+                return Mono.error(new TemplateIsDuplicatedName());
             } else {
                 return templateRepository.insert(mapTemplateRequestToTemplate(request, null)).map(this::mapTemplateToTemplateResponse);
             }
@@ -71,11 +71,11 @@ public class TemplateServiceImpl implements TemplateService {
                 .map(template -> false).defaultIfEmpty(true).flatMap(valid -> {
                     if (valid) {
                         return templateRepository.findById(id)
-                                .switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)))
+                                .switchIfEmpty(Mono.error(new TemplateIsNotFoundException()))
                                 .flatMap(t -> templateRepository.save(mapTemplateRequestToTemplate(request, t))
                                         .map(this::mapTemplateToTemplateResponse));
                     } else {
-                        return Mono.error(new TemplateIsDuplicatedName(name));
+                        return Mono.error(new TemplateIsDuplicatedName());
                     }
                 });
             }
@@ -89,13 +89,13 @@ public class TemplateServiceImpl implements TemplateService {
                 return Mono.error(new TemplateIsInUsedException("Cannot delete this print template because it's being used"));
             } else {
                 return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                    new TemplateIsNotFoundException(id))).flatMap(t -> templateRepository.deleteById(id));            }
+                    new TemplateIsNotFoundException())).flatMap(t -> templateRepository.deleteById(id));            }
         });
     }
 
     @Override
     public Mono<List<String>> readAllParameters(String id) {
-        return templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException(id)))
+        return templateRepository.findById(id).switchIfEmpty(Mono.error(new TemplateIsNotFoundException()))
                 .map(template -> template.getParameters());
 
     }
@@ -103,7 +103,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Mono<String> readTemplateContentById(String id) {
         return templateRepository.findById(id).switchIfEmpty(Mono.error(
-                new TemplateIsNotFoundException(id))).map(t ->
+                new TemplateIsNotFoundException())).map(t ->
                 t.getContent());
     }
 

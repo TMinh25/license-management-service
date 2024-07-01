@@ -4,7 +4,7 @@ import com.fpt.framework.data.exception.DataException;
 
 public class TemplateIsDuplicatedName extends DataException {
 
-    public TemplateIsDuplicatedName(String name) {
-        super("Template", "Name %s is duplicated".formatted(name));
+    public TemplateIsDuplicatedName() {
+        super("Print template name is duplicated");
     }
 }
