@@ -1,26 +1,14 @@
 server:
-  port: ${SERVER_PORT:8091}
+  port: ${SERVER_PORT:8077}
 turbo:
-  data:
-    platform: mongodb
-    constraint: true
   security:
-    ignore-path: ${AUTH_IGNORE_PATH:/templates/*/content}
+    ignore-path: ${AUTH_IGNORE_PATH:/licenses}
 spring:
   application:
-    name: template
-grpc:
-  client:
-    authorization-server:
-      address: ${AUTHOR_GRPC_SERVER:static://localhost:9082}
-      enableKeepAlive: true
-      keepAliveWithoutCalls: true
-      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
-    tenant-server:
-      address: ${TENANT_GRPC_SERVER:static://localhost:9081}
-      enableKeepAlive: true
-      keepAliveWithoutCalls: true
-      negotiationType: PLAINTEXT #TODO: Change to TLS on production after have cert
+    name: license-management
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME:admin}:${MONGODB_PASSWORD:admin}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DB_NAME:workpro-license-management}
 logging:
   level:
     org:
