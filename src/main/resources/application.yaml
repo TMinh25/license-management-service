@@ -17,3 +17,13 @@ logging:
     com:
       fpt:
         fis: ${LOGGING_LEVEL:INFO}
+
+springbootwebfluxjjwt:
+  password:
+    encoder:
+      secret: LicenseManagementService123!@#
+      iteration: 33
+      keylength: 256
+  jjwt:
+    secret: ThisIsSecretForJWTHS512SignatureAlgorithmThatMUSTHave65ByteLength
+    expiration: 28800

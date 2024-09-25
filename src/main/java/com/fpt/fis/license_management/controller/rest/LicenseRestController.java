@@ -18,6 +18,7 @@ public class LicenseRestController {
     private LicenseService licenseService;
 
     @GetMapping()
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public Mono<Page<License>> read(@RequestParam(required = false, defaultValue = "") String query,
                                     @RequestParam(defaultValue = "1") int page,
                                     @RequestParam(defaultValue = "10") int size) {
@@ -25,6 +26,7 @@ public class LicenseRestController {
     }
 
     @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<LicenseModel> create(@RequestBody LicenseModel license) {
         return licenseService.create(license);
     }
