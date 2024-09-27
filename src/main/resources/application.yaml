@@ -17,3 +17,9 @@ logging:
     com:
       fpt:
         fis: ${LOGGING_LEVEL:INFO}
+
+job:
+  constants:
+    license-request-113:
+      url: https://fisheyepubstore.fpt.com/bigquery/spro/
+      cron: "0 0 0 20 * ? *"

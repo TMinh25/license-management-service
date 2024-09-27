@@ -17,9 +17,9 @@ public class LicenseRestController {
     private LicenseService licenseService;
 
     @GetMapping()
-    public Mono<Page<License>> read(@RequestParam(required = false, defaultValue = "") String query,
-                                    @RequestParam(defaultValue = "1") int page,
-                                    @RequestParam(defaultValue = "10") int size) {
+    public Mono<Page<License>> read(@RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                    @RequestParam(value = "page", defaultValue = "1") int page,
+                                    @RequestParam(value = "size", defaultValue = "10") int size) {
         return licenseService.read(query, PageRequest.of(page - 1, size));
     }
 

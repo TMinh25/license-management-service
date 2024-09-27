@@ -8,11 +8,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Document(collection = "license")
+@Document(collection = "licenses")
 public class License {
     @Id
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -29,6 +30,10 @@ public class License {
     private String currentPackage;
 
     private Boolean active;
+
+    private LocalDate deliveryDate;
+
+    private LocalDate expirationDate;
 
     @CreatedDate
     private LocalDateTime createdAt;
